@@ -1,0 +1,456 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Conecta PET API",
+    "version": "1.0.0",
+    "description": "API completa para sistema de adoção e doação de pets, apadrinhamientos e voluntariado",
+    "contact": {
+      "name": "Conecta PET",
+      "url": "https://conectapet.com.br"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local environment"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Copie o token JWT no formato: Bearer {token}"
+      }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "João Silva" },
+          "email": { "type": "string", "format": "email", "example": "joao@example.com" },
+          "password": { "type": "string", "example": "senha123" },
+          "phone": { "type": "string", "example": "(11) 98765-4321" },
+          "cpf": { "type": "string", "example": "123.456.789-00" },
+          "address": { "type": "string", "example": "Rua das Flores, 123" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "joao@example.com" },
+          "password": { "type": "string", "example": "senha123" }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+          "user": { "$ref": "#/components/schemas/UserResponse" }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "João Silva" },
+          "email": { "type": "string", "format": "email", "example": "joao@example.com" },
+          "phone": { "type": "string", "example": "(11) 98765-4321" },
+          "cpf": { "type": "string", "example": "123.456.789-00" },
+          "address": { "type": "string", "example": "Rua das Flores, 123" },
+          "role": { "type": "string", "enum": ["USER", "ADMIN"] }
+        }
+      },
+      "AnimalRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Luna" },
+          "species": { "type": "string", "example": "gato" },
+          "breed": { "type": "string", "example": "Siamês" },
+          "gender": { "type": "string", "enum": ["macho", "fêmea"] },
+          "ageYears": { "type": "integer", "example": 2 },
+          "size": { "type": "string", "enum": ["pequeno", "medio", "grande"] },
+          "description": { "type": "string", "example": "Gata meiga" },
+          "temperament": { "type": "string", "example": "Brincalhona" },
+          "vaccinated": { "type": "boolean", "example": true },
+          "neutered": { "type": "boolean", "example": true },
+          "status": { "type": "string", "enum": ["disponivel", "adotado", "apadrinhado"] },
+          "photoUrl": { "type": "string", "example": "https://example.com/luna.jpg" },
+          "shelterId": { "type": "integer", "example": 1 }
+        }
+      },
+      "AnimalResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Luna" },
+          "species": { "type": "string", "example": "gato" },
+          "breed": { "type": "string", "example": "Siamês" },
+          "gender": { "type": "string", "enum": ["macho", "fêmea"] },
+          "ageYears": { "type": "integer", "example": 2 },
+          "size": { "type": "string", "enum": ["pequeno", "medio", "grande"] },
+          "description": { "type": "string", "example": "Gata meiga" },
+          "temperament": { "type": "string", "example": "Brincalhona" },
+          "vaccinated": { "type": "boolean", "example": true },
+          "neutered": { "type": "boolean", "example": true },
+          "status": { "type": "string", "enum": ["disponivel", "adotado", "apadrinhado"] },
+          "photoUrl": { "type": "string", "example": "https://example.com/luna.jpg" },
+          "shelterId": { "type": "integer", "example": 1 },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AdoptionRequest": {
+        "type": "object",
+        "properties": {
+          "animalId": { "type": "integer", "example": 1 },
+          "motivation": { "type": "string", "example": "Procuro um cão amigável" },
+          "experience": { "type": "string", "example": "Tenho experiência com cães" },
+          "homeType": { "type": "string", "example": "casa" }
+        }
+      },
+      "AdoptionResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "animal": { "type": "object", "properties": { "id": { "type": "integer" }, "name": { "type": "string" } } },
+          "adopter": { "type": "object", "properties": { "id": { "type": "integer" }, "name": { "type": "string" } } },
+          "status": { "type": "string", "enum": ["PENDENTE", "APROVADO", "RECUSADO", "CONCLUIDO"] },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "GodparentRequest": {
+        "type": "object",
+        "properties": {
+          "animalId": { "type": "integer", "example": 1 }
+        }
+      },
+      "GodparentResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "animal": { "type": "object", "properties": { "id": { "type": "integer" }, "name": { "type": "string" } } },
+          "status": { "type": "string", "enum": ["ATIVO", "INATIVO"] },
+          "startedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DonationRequest": {
+        "type": "object",
+        "properties": {
+          "amount": { "type": "number", "format": "double", "example": 100.00 },
+          "name": { "type": "string", "example": "Maria Silva" },
+          "email": { "type": "string", "format": "email", "example": "maria@example.com" },
+          "message": { "type": "string", "example": "Parabéns pelo excelente trabalho!" }
+        }
+      },
+      "DonationResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "amount": { "type": "number", "format": "double", "example": 100.00 },
+          "donor": { "type": "object", "properties": { "id": { "type": "integer" }, "name": { "type": "string" } } },
+          "message": { "type": "string", "example": "Parabéns!" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DonationStatsResponse": {
+        "type": "object",
+        "properties": {
+          "totalAmount": { "type": "number", "format": "double", "example": 5000.00 },
+          "averageAmount": { "type": "number", "format": "double", "example": 250.00 },
+          "totalDonations": { "type": "integer", "example": 20 }
+        }
+      },
+      "AdminStatsResponse": {
+        "type": "object",
+        "properties": {
+          "totalUsers": { "type": "integer", "example": 150 },
+          "totalAnimals": { "type": "integer", "example": 45 },
+          "animalsAvailable": { "type": "integer", "example": 20 },
+          "animalsAdopted": { "type": "integer", "example": 25 },
+          "totalAdoptions": { "type": "integer", "example": 30 },
+          "adoptionsApproved": { "type": "integer", "example": 25 },
+          "adoptionsPending": { "type": "integer", "example": 5 },
+          "totalDonations": { "type": "number", "format": "double", "example": 5000.00 },
+          "totalVolunteers": { "type": "integer", "example": 12 },
+          "totalGodparents": { "type": "integer", "example": 18 }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Registrar novo usuário",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Usuário registrado com sucesso", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } } },
+          "400": { "description": "Dados inválidos ou usuário já existe" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Fazer login",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Login realizado com sucesso", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } } },
+          "401": { "description": "Email ou senha inválidos" }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["Autenticação"],
+        "summary": "Obter perfil do usuário",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Perfil obtido com sucesso", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+          "401": { "description": "Token inválido ou expirado" }
+        }
+      },
+      "put": {
+        "tags": ["Autenticação"],
+        "summary": "Atualizar perfil do usuário",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "phone": { "type": "string" }, "address": { "type": "string" } } } } }
+        },
+        "responses": {
+          "200": { "description": "Perfil atualizado com sucesso", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } } },
+          "401": { "description": "Token inválido ou expirado" }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Fazer logout",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": { "description": "Logout realizado com sucesso" }
+        }
+      }
+    },
+    "/api/animals": {
+      "get": {
+        "tags": ["Animais"],
+        "summary": "Listar animais",
+        "parameters": [
+          { "name": "species", "in": "query", "required": false, "schema": { "type": "string" }, "description": "Espécie do animal" },
+          { "name": "size", "in": "query", "required": false, "schema": { "type": "string" }, "description": "Tamanho do animal" },
+          { "name": "status", "in": "query", "required": false, "schema": { "type": "string" }, "description": "Status do animal" },
+          { "name": "q", "in": "query", "required": false, "schema": { "type": "string" }, "description": "Busca textual" }
+        ],
+        "responses": {
+          "200": { "description": "Lista de animais retornada", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/AnimalResponse" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Animais"],
+        "summary": "Criar novo animal",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Animal criado com sucesso", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalResponse" } } } },
+          "403": { "description": "Acesso negado (requer role ADMIN)" }
+        }
+      }
+    },
+    "/api/animals/{id}": {
+      "get": {
+        "tags": ["Animais"],
+        "summary": "Obter animal por ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "Animal encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalResponse" } } } },
+          "404": { "description": "Animal não encontrado" }
+        }
+      },
+      "put": {
+        "tags": ["Animais"],
+        "summary": "Atualizar animal completamente",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Animal atualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalResponse" } } } },
+          "404": { "description": "Animal não encontrado" }
+        }
+      },
+      "patch": {
+        "tags": ["Animais"],
+        "summary": "Atualizar animal parcialmente",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Animal atualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AnimalResponse" } } } }
+        }
+      },
+      "delete": {
+        "tags": ["Animais"],
+        "summary": "Deletar animal",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "204": { "description": "Animal deletado com sucesso" },
+          "404": { "description": "Animal não encontrado" }
+        }
+      }
+    },
+    "/api/adoptions": {
+      "get": {
+        "tags": ["Adoções"],
+        "summary": "Listar todas as adoções",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "status", "in": "query", "required": false, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Lista de adoções", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/AdoptionResponse" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Adoções"],
+        "summary": "Solicitar adoção",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdoptionRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Adoção solicitada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdoptionResponse" } } } }
+        }
+      }
+    },
+    "/api/adoptions/mine": {
+      "get": {
+        "tags": ["Adoções"],
+        "summary": "Minhas adoções",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de minhas adoções", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/AdoptionResponse" } } } } }
+        }
+      }
+    },
+    "/api/adoptions/{id}/review": {
+      "patch": {
+        "tags": ["Adoções"],
+        "summary": "Revisar adoção",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "type": "string", "enum": ["APROVADO", "RECUSADO", "CONCLUIDO"] } } } } }
+        },
+        "responses": {
+          "200": { "description": "Adoção revisada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdoptionResponse" } } } }
+        }
+      }
+    },
+    "/api/godparents": {
+      "post": {
+        "tags": ["Apadrinhamientos"],
+        "summary": "Apadrinhar um animal",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GodparentRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Apadrinhamimiento criado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GodparentResponse" } } } }
+        }
+      }
+    },
+    "/api/godparents/mine": {
+      "get": {
+        "tags": ["Apadrinhamientos"],
+        "summary": "Listar meus apadrinhamientos",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de apadrinhamientos", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/GodparentResponse" } } } } }
+        }
+      }
+    },
+    "/api/godparents/{id}/status": {
+      "patch": {
+        "tags": ["Apadrinhamientos"],
+        "summary": "Desativar apadrinhamamiento",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "Status atualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GodparentResponse" } } } }
+        }
+      }
+    },
+    "/api/godparents/{id}": {
+      "delete": {
+        "tags": ["Apadrinhamientos"],
+        "summary": "Deletar apadrinhamamiento",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "204": { "description": "Apadrinhamamiento deletado" }
+        }
+      }
+    },
+    "/api/donations": {
+      "get": {
+        "tags": ["Doações"],
+        "summary": "Listar todas as doações",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de doações", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/DonationResponse" } } } } }
+        }
+      },
+      "post": {
+        "tags": ["Doações"],
+        "summary": "Fazer uma doação",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DonationRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Doação registrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DonationResponse" } } } }
+        }
+      }
+    },
+    "/api/donations/mine": {
+      "get": {
+        "tags": ["Doações"],
+        "summary": "Minhas doações",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de minhas doações", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/DonationResponse" } } } } }
+        }
+      }
+    },
+    "/api/donations/stats": {
+      "get": {
+        "tags": ["Doações"],
+        "summary": "Estatísticas de doações",
+        "responses": {
+          "200": { "description": "Estatísticas", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DonationStatsResponse" } } } }
+        }
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Obter estatísticas do sistema",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Estatísticas", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AdminStatsResponse" } } } }
+        }
+      }
+    }
+  }
+}
+

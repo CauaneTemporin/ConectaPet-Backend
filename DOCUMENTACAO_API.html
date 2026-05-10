@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conecta PET API - Documentação</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .endpoint {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .endpoint:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .endpoint-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            font-size: 0.85em;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .method.get { background: #61affe; }
+        .method.post { background: #49cc90; }
+        .method.put { background: #fca130; }
+        .method.patch { background: #50e3c2; }
+        .method.delete { background: #f93e3e; }
+
+        .path {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            flex: 1;
+        }
+
+        .endpoint-content {
+            padding: 20px;
+        }
+
+        .endpoint-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .endpoint-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .subsection {
+            margin: 20px 0;
+        }
+
+        .subsection-title {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .auth-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .response-list {
+            list-style: none;
+            margin: 10px 0;
+        }
+
+        .response-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            padding-left: 20px;
+        }
+
+        .response-list li:before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            margin-left: -15px;
+            margin-right: 10px;
+        }
+
+        .error-list li:before {
+            content: "✗";
+            color: #f44336;
+            font-weight: bold;
+            margin-left: -15px;
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            margin-top: 40px;
+        }
+
+        .toc {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toc h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+        }
+
+        .toc li {
+            padding: 5px 0;
+            margin-left: 20px;
+        }
+
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐾 Conecta PET API</h1>
+            <p>Documentação Completa de Endpoints - Versão 1.0.0</p>
+        </header>
+
+        <div class="info-box">
+            <h3>Informações Gerais</h3>
+            <table>
+                <tr>
+                    <td><strong>Base URL:</strong></td>
+                    <td><code>http://localhost:8080/api</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Versão:</strong></td>
+                    <td>1.0.0</td>
+                </tr>
+                <tr>
+                    <td><strong>Autenticação:</strong></td>
+                    <td>JWT Bearer Token</td>
+                </tr>
+                <tr>
+                    <td><strong>Content-Type:</strong></td>
+                    <td>application/json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="toc">
+            <h3>📋 Índice de Endpoints</h3>
+            <ul>
+                <li><a href="#auth">🔐 Autenticação</a></li>
+                <li><a href="#animals">🐾 Animais</a></li>
+                <li><a href="#shelters">🏘️ Abrigos</a></li>
+                <li><a href="#adoptions">📝 Adoções</a></li>
+                <li><a href="#godparents">👶 Apadrinhamientos</a></li>
+                <li><a href="#donations">💰 Doações</a></li>
+                <li><a href="#contact">📞 Contato</a></li>
+                <li><a href="#volunteers">🤝 Voluntários</a></li>
+                <li><a href="#admin">📊 Admin</a></li>
+            </ul>
+        </div>
+
+        <h2 id="auth" class="section-title">🔐 AUTENTICAÇÃO</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/auth/register</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Registrar novo usuário</div>
+                <div class="endpoint-description">Cria uma nova conta de usuário</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "password": "senha123",
+  "phone": "(11) 98765-4321",
+  "cpf": "123.456.789-00",
+  "address": "Rua das Flores, 123"
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (201 Created)</div>
+                    <div class="code-block"><code>{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "João Silva",
+    "email": "joao@example.com",
+    "role": "USER"
+  }
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Possíveis Erros</div>
+                    <ul class="response-list error-list">
+                        <li>400: Dados inválidos ou usuário já existe</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/auth/login</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Fazer login</div>
+                <div class="endpoint-description">Autentica um usuário e retorna token JWT</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "email": "joao@example.com",
+  "password": "senha123"
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (200 OK)</div>
+                    <div class="code-block"><code>{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "name": "João Silva",
+    "email": "joao@example.com",
+    "role": "USER"
+  }
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/auth/me</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Obter perfil do usuário</div>
+                <div class="endpoint-description">Retorna informações do usuário autenticado</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Headers</div>
+                    <div class="code-block"><code>Authorization: Bearer {token}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (200 OK)</div>
+                    <div class="code-block"><code>{
+  "id": 1,
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "phone": "(11) 98765-4321",
+  "cpf": "123.456.789-00",
+  "address": "Rua das Flores, 123",
+  "role": "USER"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method put">PUT</span>
+                <span class="path">/auth/me</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Atualizar perfil</div>
+                <div class="endpoint-description">Modifica informações do perfil autenticado</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "name": "João Silva Atualizado",
+  "phone": "(11) 99999-9999",
+  "address": "Rua Nova, 456"
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (200 OK)</div>
+                    <div class="code-block"><code>{
+  "id": 1,
+  "name": "João Silva Atualizado",
+  "email": "joao@example.com",
+  "phone": "(11) 99999-9999",
+  "role": "USER"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <h2 id="animals" class="section-title">🐾 ANIMAIS</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/animals</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Listar animais</div>
+                <div class="endpoint-description">Lista todos os animais com filtros opcionais</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Query Parameters (Opcionais)</div>
+                    <table>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Descrição</th>
+                            <th>Exemplo</th>
+                        </tr>
+                        <tr>
+                            <td><code>species</code></td>
+                            <td>Espécie do animal</td>
+                            <td>cachorro, gato</td>
+                        </tr>
+                        <tr>
+                            <td><code>size</code></td>
+                            <td>Tamanho</td>
+                            <td>pequeno, medio, grande</td>
+                        </tr>
+                        <tr>
+                            <td><code>status</code></td>
+                            <td>Status</td>
+                            <td>disponivel, adotado, apadrinhado</td>
+                        </tr>
+                        <tr>
+                            <td><code>q</code></td>
+                            <td>Busca textual</td>
+                            <td>labrador, rex</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Exemplos de Uso</div>
+                    <div class="code-block"><code>/animals?species=cachorro&status=disponivel
+/animals?q=labrador
+/animals?size=grande</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (200 OK)</div>
+                    <div class="code-block"><code>[
+  {
+    "id": 1,
+    "name": "Rex",
+    "species": "cachorro",
+    "breed": "Labrador",
+    "gender": "macho",
+    "ageYears": 3,
+    "size": "grande",
+    "description": "Cão amigável e dócil",
+    "temperament": "Calmo",
+    "vaccinated": true,
+    "neutered": true,
+    "status": "disponivel",
+    "photoUrl": "https://example.com/rex.jpg",
+    "shelterId": 1,
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+]</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/animals/{id}</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Obter animal por ID</div>
+                <div class="endpoint-description">Retorna detalhes de um animal específico</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Path Parameters</div>
+                    <table>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>integer</td>
+                            <td>ID do animal</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/animals</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Criar novo animal</div>
+                <div class="endpoint-description">Cria um novo registro de animal (requer ADMIN)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Headers</div>
+                    <div class="code-block"><code>Authorization: Bearer {token_admin}
+Content-Type: application/json</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "name": "Luna",
+  "species": "gato",
+  "breed": "Siamês",
+  "gender": "fêmea",
+  "ageYears": 2,
+  "size": "pequeno",
+  "description": "Gata meiga e carinhosa",
+  "temperament": "Brincalhona",
+  "vaccinated": true,
+  "neutered": true,
+  "status": "disponivel",
+  "photoUrl": "https://example.com/luna.jpg",
+  "shelterId": 1
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (201 Created)</div>
+                    <div class="code-block"><code>{
+  "id": 2,
+  "name": "Luna",
+  "species": "gato",
+  ...
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method put">PUT</span>
+                <span class="path">/animals/{id}</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Atualizar animal completamente</div>
+                <div class="endpoint-description">Atualiza todos os campos de um animal (requer ADMIN)</div>
+
+                <div class="note">
+                    <strong>ℹ️ Nota:</strong> Use PATCH para atualizar apenas alguns campos
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method patch">PATCH</span>
+                <span class="path">/animals/{id}</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Atualizar animal parcialmente</div>
+                <div class="endpoint-description">Atualiza apenas os campos informados (requer ADMIN)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body (exemplo)</div>
+                    <div class="code-block"><code>{
+  "status": "adotado",
+  "description": "Recém adotado - muito feliz!"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="path">/animals/{id}</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Deletar animal</div>
+                <div class="endpoint-description">Remove um animal do sistema (requer ADMIN)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (204 No Content)</div>
+                    <p>Sem corpo de resposta</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 id="adoptions" class="section-title">📝 ADOÇÕES</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/adoptions</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Solicitar adoção</div>
+                <div class="endpoint-description">Usuário autenticado solicita a adoção de um animal</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "animalId": 1,
+  "motivation": "Procuro um cão amigável para minha família",
+  "experience": "Tenho experiência com cães",
+  "homeType": "casa"
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (201 Created)</div>
+                    <div class="code-block"><code>{
+  "id": 1,
+  "animal": { "id": 1, "name": "Rex" },
+  "adopter": { "id": 1, "name": "João Silva" },
+  "status": "PENDENTE",
+  "createdAt": "2024-01-20T15:30:00Z"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/adoptions/mine</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Minhas adoções</div>
+                <div class="endpoint-description">Retorna todas as adoções do usuário autenticado</div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/adoptions</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Listar todas as adoções</div>
+                <div class="endpoint-description">Lista todas as solicitações de adoção (requer ADMIN)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Query Parameters</div>
+                    <table>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Valores</th>
+                        </tr>
+                        <tr>
+                            <td><code>status</code></td>
+                            <td>PENDENTE, APROVADO, RECUSADO, CONCLUIDO</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method patch">PATCH</span>
+                <span class="path">/adoptions/{id}/review</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Revisar adoção</div>
+                <div class="endpoint-description">Admin aprova, recusa ou conclui uma adoção</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "status": "APROVADO"
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Status Aceitos</div>
+                    <ul class="response-list">
+                        <li>APROVADO: Aprova a adoção</li>
+                        <li>RECUSADO: Recusa a adoção</li>
+                        <li>CONCLUIDO: Marca como concluída</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2 id="godparents" class="section-title">👶 APADRINHAMIENTOS</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/godparents</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Apadrinhar um animal</div>
+                <div class="endpoint-description">Cria um novo apadrinhamamiento para um usuário</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "animalId": 1
+}</code></div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (201 Created)</div>
+                    <div class="code-block"><code>{
+  "id": 1,
+  "animal": { "id": 1, "name": "Rex" },
+  "status": "ATIVO",
+  "startedAt": "2024-01-20T16:00:00Z"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/godparents/mine</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Listar meus apadrinhamientos</div>
+                <div class="endpoint-description">Retorna todos os apadrinhamientos do usuário autenticado</div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method patch">PATCH</span>
+                <span class="path">/godparents/{id}/status</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Desativar apadrinhamamiento</div>
+                <div class="endpoint-description">Altera o status do apadrinhamamiento para INATIVO</div>
+
+                <div class="note">
+                    <strong>ℹ️ Nota:</strong> Apenas o proprietário pode desativar seu apadrinhamamiento
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method delete">DELETE</span>
+                <span class="path">/godparents/{id}</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Deletar apadrinhamamiento</div>
+                <div class="endpoint-description">Remove um apadrinhamamiento (apenas o proprietário)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (204 No Content)</div>
+                    <p>Sem corpo de resposta</p>
+                </div>
+
+                <div class="note">
+                    <strong>ℹ️ Nota:</strong> Apenas o proprietário do apadrinhamamiento pode deletá-lo
+                </div>
+            </div>
+        </div>
+
+        <h2 id="donations" class="section-title">💰 DOAÇÕES</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/donations</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Fazer uma doação</div>
+                <div class="endpoint-description">Cria um novo registro de doação (pode ser anônimo)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "amount": 100.00,
+  "name": "Maria Silva",
+  "email": "maria@example.com",
+  "message": "Parabéns pelo excelente trabalho!"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/donations/mine</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Minhas doações</div>
+                <div class="endpoint-description">Retorna todas as doações do usuário autenticado</div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/donations/stats</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Estatísticas de doações</div>
+                <div class="endpoint-description">Retorna estatísticas gerais de doações</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (200 OK)</div>
+                    <div class="code-block"><code>{
+  "totalAmount": 5000.00,
+  "averageAmount": 250.00,
+  "totalDonations": 20
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/donations</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Listar todas as doações</div>
+                <div class="endpoint-description">Retorna todas as doações registradas (requer ADMIN)</div>
+            </div>
+        </div>
+
+        <h2 id="contact" class="section-title">📞 CONTATO</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/contact</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Enviar mensagem de contato</div>
+                <div class="endpoint-description">Cria uma nova mensagem de contato (pública)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "name": "João da Silva",
+  "email": "joao@example.com",
+  "subject": "Dúvida sobre adoção",
+  "message": "Gostaria de saber mais sobre o processo de adoção"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/contact</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Listar mensagens de contato</div>
+                <div class="endpoint-description">Retorna todas as mensagens recebidas (requer ADMIN)</div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method patch">PATCH</span>
+                <span class="path">/contact/{id}/read</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Marcar mensagem como lida</div>
+                <div class="endpoint-description">Atualiza o status de uma mensagem para lida (requer ADMIN)</div>
+            </div>
+        </div>
+
+        <h2 id="volunteers" class="section-title">🤝 VOLUNTÁRIOS</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/volunteers</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Registrar como voluntário</div>
+                <div class="endpoint-description">Permite que um usuário se registre como voluntário</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Request Body</div>
+                    <div class="code-block"><code>{
+  "skills": "Experiência com cães, adestramento básico",
+  "availability": "Fins de semana",
+  "motivation": "Quero ajudar a cuidar dos animais"
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/volunteers/mine</span>
+                <span class="auth-badge">🔒 AUTH</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Obter meu perfil de voluntário</div>
+                <div class="endpoint-description">Retorna informações do perfil de voluntário do usuário autenticado</div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/volunteers</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Listar todos os voluntários</div>
+                <div class="endpoint-description">Retorna todos os voluntários cadastrados (requer ADMIN)</div>
+            </div>
+        </div>
+
+        <h2 id="admin" class="section-title">📊 ADMIN</h2>
+
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/admin/stats</span>
+                <span class="admin-badge">👨‍💼 ADMIN</span>
+            </div>
+            <div class="endpoint-content">
+                <div class="endpoint-title">Obter estatísticas do sistema</div>
+                <div class="endpoint-description">Retorna estatísticas gerais do sistema (requer ADMIN)</div>
+
+                <div class="subsection">
+                    <div class="subsection-title">Response (200 OK)</div>
+                    <div class="code-block"><code>{
+  "totalUsers": 150,
+  "totalAnimals": 45,
+  "animalsAvailable": 20,
+  "animalsAdopted": 25,
+  "totalAdoptions": 30,
+  "adoptionsApproved": 25,
+  "adoptionsPending": 5,
+  "totalDonations": 5000.00,
+  "totalVolunteers": 12,
+  "totalGodparents": 18
+}</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note" style="margin-top: 50px;">
+            <h3>🔐 Notas de Segurança</h3>
+            <ul class="response-list">
+                <li>Todos os endpoints protegidos requerem um token JWT válido no header <code>Authorization: Bearer {token}</code></li>
+                <li>Endpoints marcados com 👨‍💼 ADMIN requerem role ADMIN</li>
+                <li>Usuários regulares só podem acessar seus próprios dados</li>
+                <li>Use <code>Content-Type: application/json</code> para POST, PUT, PATCH</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>📚 Documentação Gerada - Conecta PET API v1.0.0</p>
+            <p>Para acessar o Swagger UI quando a app estiver rodando: <code>http://localhost:8080/swagger-ui.html</code></p>
+        </footer>
+    </div>
+</body>
+</html>
+
