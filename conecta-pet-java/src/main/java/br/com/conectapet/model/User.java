@@ -57,5 +57,5 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Godparent> godparents;
 
-    public enum Role { USER, ADMIN }
+    public enum Role { USER, ADMIN, GESTOR_PUBLICO }
 }

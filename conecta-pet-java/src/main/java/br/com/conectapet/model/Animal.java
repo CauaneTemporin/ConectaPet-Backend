@@ -53,6 +53,10 @@ public class Animal {
     private String photoUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ong_id")
+    private Ong ong;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shelter_id")
     private Shelter shelter;
 

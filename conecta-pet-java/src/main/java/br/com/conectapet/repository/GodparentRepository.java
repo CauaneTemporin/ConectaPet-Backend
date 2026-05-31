@@ -12,4 +12,6 @@ public interface GodparentRepository extends JpaRepository<Godparent, Long> {
     List<Godparent> findByUserOrderByStartedAtDesc(User user);
     boolean existsByUserAndAnimalAndStatus(User user, Animal animal, Godparent.GodparentStatus status);
     long countByStatus(Godparent.GodparentStatus status);
+
+    long countByAnimalOngIdAndStatus(Long ongId, Godparent.GodparentStatus status);
 }

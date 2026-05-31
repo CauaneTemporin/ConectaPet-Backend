@@ -20,4 +20,12 @@ public interface AdoptionRepository extends JpaRepository<Adoption, Long> {
     boolean existsByUserAndAnimalAndStatusNot(User user, Animal animal, Adoption.AdoptionStatus status);
 
     long countByStatus(Adoption.AdoptionStatus status);
+
+    List<Adoption> findByAnimalOngIdOrderByCreatedAtDesc(Long ongId);
+
+    @Query("SELECT a FROM Adoption a WHERE a.animal.ong.id = :ongId AND a.status = :status ORDER BY a.createdAt DESC")
+    List<Adoption> findByAnimalOngIdAndStatus(@Param("ongId") Long ongId, @Param("status") Adoption.AdoptionStatus status);
+
+    long countByAnimalOngId(Long ongId);
+    long countByAnimalOngIdAndStatus(Long ongId, Adoption.AdoptionStatus status);
 }

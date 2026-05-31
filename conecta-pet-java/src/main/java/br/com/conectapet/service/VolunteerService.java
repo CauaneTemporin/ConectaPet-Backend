@@ -1,5 +1,6 @@
 package br.com.conectapet.service;
 
+import br.com.conectapet.config.TenantContext;
 import br.com.conectapet.dto.VolunteerDTOs;
 import br.com.conectapet.model.*;
 import br.com.conectapet.repository.*;
@@ -16,6 +17,7 @@ public class VolunteerService {
 
     private final VolunteerRepository volunteerRepository;
     private final UserRepository      userRepository;
+    private final OngRepository       ongRepository;
 
     @Transactional
     public VolunteerDTOs.VolunteerResponse register(VolunteerDTOs.VolunteerRequest req, String userEmail) {
@@ -23,13 +25,18 @@ public class VolunteerService {
         if (volunteerRepository.existsByUser(user))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Você já está cadastrado como voluntário.");
 
-        var vol = Volunteer.builder()
+        var volBuilder = Volunteer.builder()
             .user(user)
             .skills(req.skills())
             .availability(req.availability())
-            .motivation(req.motivation())
-            .build();
-        return VolunteerDTOs.VolunteerResponse.from(volunteerRepository.save(vol));
+            .motivation(req.motivation());
+
+        Long ongId = TenantContext.get();
+        if (ongId != null) {
+            ongRepository.findById(ongId).ifPresent(volBuilder::ong);
+        }
+
+        return VolunteerDTOs.VolunteerResponse.from(volunteerRepository.save(volBuilder.build()));
     }
 
     public VolunteerDTOs.VolunteerResponse myVolunteer(String userEmail) {
@@ -75,8 +82,11 @@ public class VolunteerService {
     }
 
     public List<VolunteerDTOs.VolunteerResponse> listAll() {
-        return volunteerRepository.findAllByOrderByCreatedAtDesc()
-            .stream().map(VolunteerDTOs.VolunteerResponse::from).toList();
+        Long ongId = TenantContext.get();
+        List<Volunteer> volunteers = ongId != null
+            ? volunteerRepository.findByOngIdOrderByCreatedAtDesc(ongId)
+            : volunteerRepository.findAllByOrderByCreatedAtDesc();
+        return volunteers.stream().map(VolunteerDTOs.VolunteerResponse::from).toList();
     }
 
     @Transactional

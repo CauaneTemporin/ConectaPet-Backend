@@ -21,8 +21,6 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         seedUsers();
-        seedShelters();
-        seedAnimals();
         log.info("✅ Dados iniciais carregados.");
     }
 

@@ -1,5 +1,6 @@
 package br.com.conectapet.service;
 
+import br.com.conectapet.config.TenantContext;
 import br.com.conectapet.dto.DonationDTOs;
 import br.com.conectapet.model.*;
 import br.com.conectapet.repository.*;
@@ -19,19 +20,25 @@ public class DonationService {
 
     private final DonationRepository donationRepository;
     private final UserRepository     userRepository;
+    private final OngRepository      ongRepository;
 
     @Transactional
     public DonationDTOs.DonationResponse donate(DonationDTOs.DonationRequest req, String userEmail) {
         User user = userEmail != null ? userRepository.findByEmail(userEmail).orElse(null) : null;
-        var donation = Donation.builder()
+        var builder = Donation.builder()
             .user(user).amount(req.amount())
             .frequency(req.frequency() != null ? req.frequency() : Donation.Frequency.UNICO)
             .method(req.method() != null ? req.method() : Donation.PaymentMethod.PIX)
             .donorName(req.donorName()).donorEmail(req.donorEmail()).donorCpf(req.donorCpf())
-            .status(Donation.DonationStatus.CONFIRMADO)
-            .build();
+            .status(Donation.DonationStatus.CONFIRMADO);
+
+        Long ongId = TenantContext.get();
+        if (ongId != null) {
+            ongRepository.findById(ongId).ifPresent(builder::ong);
+        }
+
         log.info("Doação confirmada: R$ {} de {}", req.amount(), req.donorEmail());
-        return DonationDTOs.DonationResponse.from(donationRepository.save(donation));
+        return DonationDTOs.DonationResponse.from(donationRepository.save(builder.build()));
     }
 
     public List<DonationDTOs.DonationResponse> myDonations(String userEmail) {
@@ -42,8 +49,11 @@ public class DonationService {
     }
 
     public List<DonationDTOs.DonationResponse> listAll() {
-        return donationRepository.findAllByOrderByCreatedAtDesc()
-            .stream().map(DonationDTOs.DonationResponse::from).toList();
+        Long ongId = TenantContext.get();
+        List<Donation> donations = ongId != null
+            ? donationRepository.findByOngIdOrderByCreatedAtDesc(ongId)
+            : donationRepository.findAllByOrderByCreatedAtDesc();
+        return donations.stream().map(DonationDTOs.DonationResponse::from).toList();
     }
 
     public DonationDTOs.DonationStatsResponse stats() {

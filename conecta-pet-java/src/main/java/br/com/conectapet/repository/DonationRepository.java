@@ -4,6 +4,7 @@ import br.com.conectapet.model.Donation;
 import br.com.conectapet.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,4 +21,9 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     long countDistinctDonors();
 
     long countByStatus(Donation.DonationStatus status);
+
+    List<Donation> findByOngIdOrderByCreatedAtDesc(Long ongId);
+
+    @Query("SELECT COALESCE(SUM(d.amount), 0) FROM Donation d WHERE d.ong.id = :ongId AND d.status = 'CONFIRMADO'")
+    BigDecimal sumConfirmedByOngId(@Param("ongId") Long ongId);
 }

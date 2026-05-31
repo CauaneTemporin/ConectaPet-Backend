@@ -14,4 +14,7 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
     List<Volunteer> findAllByOrderByCreatedAtDesc();
     long countByStatus(Volunteer.VolunteerStatus status);
     List<Volunteer> findBySkillsContaining(String skill);
+
+    List<Volunteer> findByOngIdOrderByCreatedAtDesc(Long ongId);
+    long countByOngIdAndStatus(Long ongId, Volunteer.VolunteerStatus status);
 }

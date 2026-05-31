@@ -15,7 +15,11 @@ public class Volunteer {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "ong_id")
+    private Ong ong;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // JSON array stored as text: ["fotografia","transporte",...]

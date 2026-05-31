@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.*;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final OngTenantFilter ongTenantFilter;
     private final UserDetailsService userDetailsService;
 
     @Value("${app.cors.allowed-origins}")
@@ -39,6 +42,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            )
             .authorizeHttpRequests(auth -> auth
                 // ── Públicas ──────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
@@ -47,25 +53,33 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/donations/stats").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
-                // ── Admin ─────────────────────────────────────────────
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST,   "/api/animals").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT,    "/api/animals/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH,  "/api/animals/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/animals/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST,   "/api/shelters").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET,    "/api/contact").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH,  "/api/contact/*/read").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET,    "/api/volunteers").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST,   "/api/godparents").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.PATCH,  "/api/volunteers/*/approve").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH,  "/api/volunteers/*/reject").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET,    "/api/donations").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PATCH,  "/api/adoptions/*/review").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,  "/api/ongs").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/ongs/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/ongs").permitAll()
+                // ── Admin / ONG Admin (rotas operacionais) ───────────
+                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.POST,   "/api/animals").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/animals/**").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/animals/**").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/animals/**").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.POST,   "/api/shelters").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/contact").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/contact/*/read").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/volunteers").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/volunteers/*/approve").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/volunteers/*/reject").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/donations").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/adoptions").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/adoptions/*/review").hasAnyRole("ADMIN", "ONG_ADMIN")
+                // ── Gestor Público ────────────────────────────────────
+                .requestMatchers(HttpMethod.GET,   "/api/denuncias").hasAnyRole("ADMIN", "GESTOR_PUBLICO")
+                .requestMatchers(HttpMethod.PATCH, "/api/denuncias/*/status").hasAnyRole("ADMIN", "GESTOR_PUBLICO")
                 // ── Autenticadas ──────────────────────────────────────
+                .requestMatchers(HttpMethod.POST,  "/api/godparents").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(ongTenantFilter, JwtAuthFilter.class);
 
         return http.build();
     }

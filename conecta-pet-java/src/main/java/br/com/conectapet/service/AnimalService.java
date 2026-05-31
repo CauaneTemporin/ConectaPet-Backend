@@ -1,5 +1,6 @@
 package br.com.conectapet.service;
 
+import br.com.conectapet.config.TenantContext;
 import br.com.conectapet.dto.AnimalDTOs;
 import br.com.conectapet.model.*;
 import br.com.conectapet.repository.*;
@@ -17,6 +18,7 @@ public class AnimalService {
     private final AnimalRepository  animalRepository;
     private final ShelterRepository shelterRepository;
     private final UserRepository    userRepository;
+    private final OngRepository     ongRepository;
 
     /** Lista animais com filtros opcionais */
     public List<AnimalDTOs.AnimalResponse> list(String species, String size, String status, String q) {
@@ -24,10 +26,12 @@ public class AnimalService {
         Animal.Size         sizeEnum    = parseEnum(Animal.Size.class,         size != null ? size.toUpperCase() : null);
         Animal.AnimalStatus statusEnum  = parseEnum(Animal.AnimalStatus.class, status != null ? status.toUpperCase() : null);
 
-        return animalRepository.search(speciesEnum, sizeEnum, statusEnum, q)
-            .stream()
-            .map(AnimalDTOs.AnimalResponse::from)
-            .toList();
+        Long ongId = TenantContext.get();
+        List<Animal> animals = ongId != null
+            ? animalRepository.searchByOng(ongId, speciesEnum, sizeEnum, statusEnum, q)
+            : animalRepository.search(speciesEnum, sizeEnum, statusEnum, q);
+
+        return animals.stream().map(AnimalDTOs.AnimalResponse::from).toList();
     }
 
     /** Busca animal por ID */
@@ -58,6 +62,11 @@ public class AnimalService {
 
         if (req.shelterId() != null) {
             shelterRepository.findById(req.shelterId()).ifPresent(animal::setShelter);
+        }
+
+        Long ongId = TenantContext.get();
+        if (ongId != null) {
+            ongRepository.findById(ongId).ifPresent(animal::setOng);
         }
 
         userRepository.findByEmail(adminEmail).ifPresent(animal::setCreatedBy);

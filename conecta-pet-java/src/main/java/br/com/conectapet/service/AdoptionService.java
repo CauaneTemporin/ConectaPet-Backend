@@ -1,5 +1,6 @@
 package br.com.conectapet.service;
 
+import br.com.conectapet.config.TenantContext;
 import br.com.conectapet.dto.AdoptionDTOs;
 import br.com.conectapet.model.*;
 import br.com.conectapet.repository.*;
@@ -58,9 +59,19 @@ public class AdoptionService {
 
     /** Lista todas as adoções (admin) */
     public List<AdoptionDTOs.AdoptionResponse> listAll(String status) {
-        List<Adoption> list = status != null
-            ? adoptionRepository.findByStatus(parseStatus(status))
-            : adoptionRepository.findAllByOrderByCreatedAtDesc();
+        Long ongId = TenantContext.get();
+        List<Adoption> list;
+
+        if (ongId != null) {
+            list = status != null
+                ? adoptionRepository.findByAnimalOngIdAndStatus(ongId, parseStatus(status))
+                : adoptionRepository.findByAnimalOngIdOrderByCreatedAtDesc(ongId);
+        } else {
+            list = status != null
+                ? adoptionRepository.findByStatus(parseStatus(status))
+                : adoptionRepository.findAllByOrderByCreatedAtDesc();
+        }
+
         return list.stream().map(AdoptionDTOs.AdoptionResponse::from).toList();
     }
 
