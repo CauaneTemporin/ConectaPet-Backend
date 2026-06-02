@@ -44,6 +44,7 @@ public class OngService {
             .nomeFantasia(request.nomeFantasia())
             .email(request.email())
             .telefone(request.telefone())
+            .cep(request.cep())
             .endereco(request.endereco())
             .cidade(request.cidade())
             .estado(request.estado().toUpperCase())
@@ -53,11 +54,12 @@ public class OngService {
             .build();
         Ong saved = ongRepository.save(ong);
 
-        // Criador vira ONG_ADMIN automaticamente
+        // Criador vira ONG_ADMIN ativo automaticamente
         if (solicitante != null && !membroRepository.existsByOngAndUser(saved, solicitante)) {
             membroRepository.save(OngMembro.builder()
                 .ong(saved).user(solicitante)
                 .role(OngMembro.OngMembroRole.ONG_ADMIN)
+                .status(OngMembro.OngMembroStatus.ATIVO)
                 .build());
         }
 
@@ -98,6 +100,7 @@ public class OngService {
         User user = usuarioAutenticado();
         return membroRepository.findByUserOrderByJoinedAtDesc(user)
             .stream()
+            .filter(m -> m.getStatus() == OngMembro.OngMembroStatus.ATIVO)
             .map(m -> toResumoComRole(m.getOng(), m.getRole()))
             .toList();
     }
@@ -143,7 +146,10 @@ public class OngService {
         if (membroRepository.existsByOngAndUser(ong, novoMembro)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Usuário já é membro desta ONG");
         }
-        OngMembro membro = OngMembro.builder().ong(ong).user(novoMembro).build();
+        OngMembro membro = OngMembro.builder()
+            .ong(ong).user(novoMembro)
+            .status(OngMembro.OngMembroStatus.ATIVO)
+            .build();
         return toMembroResponse(membroRepository.save(membro));
     }
 
@@ -189,33 +195,84 @@ public class OngService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado"));
     }
 
+    @Transactional
+    public OngDTOs.OngMembroResponse aprovarMembro(Long ongId, Long userId) {
+        Ong ong = buscarOng(ongId);
+        verificarOngAdmin(ong, usuarioAutenticado());
+        User alvo = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        OngMembro membro = membroRepository.findByOngAndUser(ong, alvo)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Solicitação não encontrada"));
+        membro.setStatus(OngMembro.OngMembroStatus.ATIVO);
+        return toMembroResponse(membroRepository.save(membro));
+    }
+
+    @Transactional
+    public OngDTOs.OngMembroResponse rejeitarMembro(Long ongId, Long userId) {
+        Ong ong = buscarOng(ongId);
+        verificarOngAdmin(ong, usuarioAutenticado());
+        User alvo = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        OngMembro membro = membroRepository.findByOngAndUser(ong, alvo)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Solicitação não encontrada"));
+        membro.setStatus(OngMembro.OngMembroStatus.REJEITADO);
+        return toMembroResponse(membroRepository.save(membro));
+    }
+
     private void verificarOngAdmin(Ong ong, User user) {
         if (user.getRole() == User.Role.ADMIN) return;
-        boolean isAdmin = membroRepository.existsByOngAndUserAndRole(ong, user, OngMembro.OngMembroRole.ONG_ADMIN);
-        if (!isAdmin) {
+        OngMembro membro = membroRepository.findByOngAndUser(ong, user).orElse(null);
+        if (membro == null
+                || membro.getStatus()  != OngMembro.OngMembroStatus.ATIVO
+                || membro.getRole()    != OngMembro.OngMembroRole.ONG_ADMIN) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso restrito ao administrador da ONG");
         }
     }
 
     private OngDTOs.OngResumoResponse toResumo(Ong o) {
         return new OngDTOs.OngResumoResponse(
-            o.getId(), o.getNomeFantasia(), o.getRazaoSocial(),
+            o.getId(), o.getCnpj(), o.getNomeFantasia(), o.getRazaoSocial(),
             o.getCidade(), o.getEstado(), o.getDescricao(), o.getLogoUrl(), o.getStatus(), null
         );
     }
 
     private OngDTOs.OngResumoResponse toResumoComRole(Ong o, OngMembro.OngMembroRole role) {
         return new OngDTOs.OngResumoResponse(
-            o.getId(), o.getNomeFantasia(), o.getRazaoSocial(),
+            o.getId(), o.getCnpj(), o.getNomeFantasia(), o.getRazaoSocial(),
             o.getCidade(), o.getEstado(), o.getDescricao(), o.getLogoUrl(), o.getStatus(), role
         );
+    }
+
+    @Transactional
+    public OngDTOs.OngResponse atualizarPerfil(Long ongId, OngDTOs.AtualizarPerfilOngRequest req) {
+        Ong ong = buscarOng(ongId);
+        User user = usuarioAutenticado();
+        verificarOngAdmin(ong, user);
+
+        if (req.descricao()  != null) ong.setDescricao(req.descricao().isBlank()  ? null : req.descricao().trim());
+        if (req.historia()   != null) ong.setHistoria(req.historia().isBlank()   ? null : req.historia().trim());
+        if (req.missao()     != null) ong.setMissao(req.missao().isBlank()       ? null : req.missao().trim());
+        if (req.logoUrl()    != null) ong.setLogoUrl(req.logoUrl().isBlank()     ? null : req.logoUrl().trim());
+        if (req.telefone()   != null) ong.setTelefone(req.telefone().isBlank()   ? null : req.telefone().trim());
+        if (req.cep()        != null) ong.setCep(req.cep().isBlank()             ? null : req.cep().trim());
+        if (req.endereco()   != null) ong.setEndereco(req.endereco().isBlank()   ? null : req.endereco().trim());
+        if (req.facebook()   != null) ong.setFacebook(req.facebook().isBlank()   ? null : req.facebook().trim());
+        if (req.whatsapp()   != null) ong.setWhatsapp(req.whatsapp().isBlank()   ? null : req.whatsapp().trim());
+        if (req.instagram()  != null) ong.setInstagram(req.instagram().isBlank() ? null : req.instagram().trim());
+        if (req.youtube()    != null) ong.setYoutube(req.youtube().isBlank()     ? null : req.youtube().trim());
+        if (req.tiktok()     != null) ong.setTiktok(req.tiktok().isBlank()       ? null : req.tiktok().trim());
+        if (req.telegram()   != null) ong.setTelegram(req.telegram().isBlank()   ? null : req.telegram().trim());
+
+        return toResponse(ongRepository.save(ong));
     }
 
     private OngDTOs.OngResponse toResponse(Ong o) {
         return new OngDTOs.OngResponse(
             o.getId(), o.getCnpj(), o.getRazaoSocial(), o.getNomeFantasia(),
-            o.getEmail(), o.getTelefone(), o.getEndereco(), o.getCidade(), o.getEstado(),
-            o.getDescricao(), o.getLogoUrl(), o.getStatus(),
+            o.getEmail(), o.getTelefone(), o.getCep(), o.getEndereco(), o.getCidade(), o.getEstado(),
+            o.getDescricao(), o.getHistoria(), o.getMissao(), o.getLogoUrl(),
+            o.getFacebook(), o.getWhatsapp(), o.getInstagram(), o.getYoutube(), o.getTiktok(), o.getTelegram(),
+            o.getStatus(),
             o.getSolicitadoPor() != null ? o.getSolicitadoPor().getId() : null,
             o.getSolicitadoPor() != null ? o.getSolicitadoPor().getName() : null,
             o.getCreatedAt(), o.getUpdatedAt()
@@ -225,7 +282,7 @@ public class OngService {
     private OngDTOs.OngMembroResponse toMembroResponse(OngMembro m) {
         return new OngDTOs.OngMembroResponse(
             m.getId(), m.getUser().getId(), m.getUser().getName(),
-            m.getUser().getEmail(), m.getRole(), m.getJoinedAt()
+            m.getUser().getEmail(), m.getRole(), m.getStatus(), m.getJoinedAt()
         );
     }
 }

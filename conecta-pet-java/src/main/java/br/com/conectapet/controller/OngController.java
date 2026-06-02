@@ -91,6 +91,31 @@ public class OngController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/perfil")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Atualizar perfil da ONG", description = "ONG admin pode editar história, missão e informações de contato")
+    public ResponseEntity<OngDTOs.OngResponse> atualizarPerfil(
+            @PathVariable Long id,
+            @RequestBody OngDTOs.AtualizarPerfilOngRequest request) {
+        return ResponseEntity.ok(ongService.atualizarPerfil(id, request));
+    }
+
+    @PatchMapping("/{id}/membros/{userId}/aprovar")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Aprovar solicitação de membro")
+    public ResponseEntity<OngDTOs.OngMembroResponse> aprovarMembro(
+            @PathVariable Long id, @PathVariable Long userId) {
+        return ResponseEntity.ok(ongService.aprovarMembro(id, userId));
+    }
+
+    @PatchMapping("/{id}/membros/{userId}/rejeitar")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Rejeitar solicitação de membro")
+    public ResponseEntity<OngDTOs.OngMembroResponse> rejeitarMembro(
+            @PathVariable Long id, @PathVariable Long userId) {
+        return ResponseEntity.ok(ongService.rejeitarMembro(id, userId));
+    }
+
     @PatchMapping("/{id}/membros/{userId}/role")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Alterar papel de membro")

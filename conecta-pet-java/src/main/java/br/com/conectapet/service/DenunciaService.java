@@ -30,6 +30,10 @@ public class DenunciaService {
             .user(user)
             .titulo(request.titulo())
             .descricao(request.descricao())
+            .estado(request.estado())
+            .cidade(request.cidade())
+            .cep(request.cep())
+            .complemento(request.complemento())
             .endereco(request.endereco())
             .categoria(request.categoria());
 
@@ -101,6 +105,10 @@ public class DenunciaService {
             d.getUser().getName(),
             d.getTitulo(),
             d.getDescricao(),
+            d.getEstado(),
+            d.getCidade(),
+            d.getCep(),
+            d.getComplemento(),
             d.getEndereco(),
             d.getCategoria(),
             d.getStatus(),

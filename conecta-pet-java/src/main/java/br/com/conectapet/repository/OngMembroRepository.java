@@ -19,5 +19,7 @@ public interface OngMembroRepository extends JpaRepository<OngMembro, Long> {
 
     boolean existsByOngAndUserAndRole(Ong ong, User user, OngMembro.OngMembroRole role);
 
+    List<OngMembro> findByOngAndStatusOrderByJoinedAtDesc(Ong ong, OngMembro.OngMembroStatus status);
+
     long countByOng(Ong ong);
 }

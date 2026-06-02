@@ -32,6 +32,14 @@ public class Denuncia {
     @Column(nullable = false, length = 2000)
     private String descricao;
 
+    private String estado;
+    private String cidade;
+
+    @Column(length = 9)
+    private String cep;
+
+    private String complemento;
+
     @Column
     private String endereco;
 

@@ -15,9 +15,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VolunteerService {
 
-    private final VolunteerRepository volunteerRepository;
-    private final UserRepository      userRepository;
-    private final OngRepository       ongRepository;
+    private final VolunteerRepository  volunteerRepository;
+    private final UserRepository       userRepository;
+    private final OngRepository        ongRepository;
+    private final OngMembroRepository  membroRepository;
 
     @Transactional
     public VolunteerDTOs.VolunteerResponse register(VolunteerDTOs.VolunteerRequest req, String userEmail) {
@@ -36,7 +37,11 @@ public class VolunteerService {
             ongRepository.findById(ongId).ifPresent(volBuilder::ong);
         }
 
-        return VolunteerDTOs.VolunteerResponse.from(volunteerRepository.save(volBuilder.build()));
+        Volunteer saved = volunteerRepository.save(volBuilder.build());
+        if (ongId != null) {
+            ongRepository.findById(ongId).ifPresent(ong -> solicitarMembresia(ong, user));
+        }
+        return VolunteerDTOs.VolunteerResponse.from(saved);
     }
 
     public VolunteerDTOs.VolunteerResponse myVolunteer(String userEmail) {
@@ -69,6 +74,15 @@ public class VolunteerService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Voluntário não encontrado."));
 
         volunteer.setStatus(Volunteer.VolunteerStatus.APROVADO);
+
+        if (volunteer.getSkills() != null && volunteer.getSkills().contains("servidor_publico")) {
+            User user = volunteer.getUser();
+            if (user.getRole() == User.Role.USER) {
+                user.setRole(User.Role.GESTOR_PUBLICO);
+                userRepository.save(user);
+            }
+        }
+
         return VolunteerDTOs.VolunteerResponse.from(volunteerRepository.save(volunteer));
     }
 
@@ -112,6 +126,15 @@ public class VolunteerService {
         var response = VolunteerDTOs.VolunteerResponse.from(volunteer);
         volunteerRepository.deleteById(id);
         return response;
+    }
+
+    private void solicitarMembresia(Ong ong, User user) {
+        if (membroRepository.existsByOngAndUser(ong, user)) return;
+        membroRepository.save(OngMembro.builder()
+            .ong(ong).user(user)
+            .role(OngMembro.OngMembroRole.ONG_MEMBRO)
+            .status(OngMembro.OngMembroStatus.PENDENTE)
+            .build());
     }
 
     private User findUser(String email) {

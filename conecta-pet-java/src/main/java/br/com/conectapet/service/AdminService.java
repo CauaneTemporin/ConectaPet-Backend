@@ -40,7 +40,7 @@ public class AdminService {
                 donations != null ? donations : BigDecimal.ZERO,
                 volunteerRepository.countByOngIdAndStatus(ongId, Volunteer.VolunteerStatus.APROVADO),
                 godparentRepository.countByAnimalOngIdAndStatus(ongId, Godparent.GodparentStatus.APROVADO),
-                contactRepository.countByRead(false),
+                contactRepository.countByOngIdAndRead(ongId, false),
                 0L, 0L, 0L
             );
         }

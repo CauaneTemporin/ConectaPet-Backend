@@ -49,17 +49,22 @@ public class OngTenantFilter extends OncePerRequestFilter {
     private void resolveAndSetTenant(String ongIdStr) {
         try {
             Long ongId = Long.parseLong(ongIdStr);
+
+            Ong ong = ongRepository.findById(ongId).orElse(null);
+            if (ong == null) return;
+
+            // Set tenant context for all requests (public, anonymous, non-member users)
+            TenantContext.set(ongId, false);
+
+            // Additionally check membership to grant ONG_ADMIN role
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) return;
 
             User user = userRepository.findByEmail(auth.getName()).orElse(null);
             if (user == null) return;
 
-            Ong ong = ongRepository.findById(ongId).orElse(null);
-            if (ong == null) return;
-
             OngMembro membro = membroRepository.findByOngAndUser(ong, user).orElse(null);
-            if (membro == null) return;
+            if (membro == null || membro.getStatus() != OngMembro.OngMembroStatus.ATIVO) return;
 
             boolean isOngAdmin = membro.getRole() == OngMembro.OngMembroRole.ONG_ADMIN;
             TenantContext.set(ongId, isOngAdmin);

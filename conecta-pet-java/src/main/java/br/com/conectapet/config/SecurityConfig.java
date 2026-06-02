@@ -53,9 +53,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/donations/stats").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/ongs").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/ongs/{id}").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/ongs").permitAll()
+                .requestMatchers(HttpMethod.GET,   "/api/ongs").permitAll()
+                .requestMatchers(HttpMethod.GET,   "/api/ongs/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST,  "/api/ongs").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/ongs/*/perfil").hasAnyRole("ADMIN", "ONG_ADMIN")
                 // ── Admin / ONG Admin (rotas operacionais) ───────────
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "ONG_ADMIN")
                 .requestMatchers(HttpMethod.POST,   "/api/animals").hasAnyRole("ADMIN", "ONG_ADMIN")
@@ -71,6 +72,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,    "/api/donations").hasAnyRole("ADMIN", "ONG_ADMIN")
                 .requestMatchers(HttpMethod.GET,    "/api/adoptions").hasAnyRole("ADMIN", "ONG_ADMIN")
                 .requestMatchers(HttpMethod.PATCH,  "/api/adoptions/*/review").hasAnyRole("ADMIN", "ONG_ADMIN")
+                // ── Ocorrências ───────────────────────────────────────
+                .requestMatchers(HttpMethod.POST,   "/api/occurrences").permitAll()
+                .requestMatchers(HttpMethod.GET,    "/api/occurrences/mine").authenticated()
+                .requestMatchers(HttpMethod.GET,    "/api/occurrences").hasAnyRole("ADMIN", "ONG_ADMIN", "GESTOR_PUBLICO")
+                .requestMatchers(HttpMethod.PATCH,  "/api/occurrences/*/status").hasAnyRole("ADMIN", "ONG_ADMIN", "GESTOR_PUBLICO")
+                .requestMatchers(HttpMethod.DELETE, "/api/occurrences/*").hasAnyRole("ADMIN", "ONG_ADMIN", "GESTOR_PUBLICO")
                 // ── Gestor Público ────────────────────────────────────
                 .requestMatchers(HttpMethod.GET,   "/api/denuncias").hasAnyRole("ADMIN", "GESTOR_PUBLICO")
                 .requestMatchers(HttpMethod.PATCH, "/api/denuncias/*/status").hasAnyRole("ADMIN", "GESTOR_PUBLICO")

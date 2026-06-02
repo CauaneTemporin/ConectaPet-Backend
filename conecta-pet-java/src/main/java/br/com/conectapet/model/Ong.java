@@ -36,6 +36,9 @@ public class Ong {
 
     private String telefone;
 
+    @Column(length = 9)
+    private String cep;
+
     private String endereco;
 
     @NotBlank(message = "Cidade é obrigatória")
@@ -49,7 +52,20 @@ public class Ong {
     @Column(length = 1000)
     private String descricao;
 
+    @Column(length = 3000)
+    private String historia;
+
+    @Column(length = 500)
+    private String missao;
+
     private String logoUrl;
+
+    private String facebook;
+    private String whatsapp;
+    private String instagram;
+    private String youtube;
+    private String tiktok;
+    private String telegram;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

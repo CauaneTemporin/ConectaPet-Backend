@@ -28,9 +28,15 @@ public class OngMembro {
     @Builder.Default
     private OngMembroRole role = OngMembroRole.ONG_MEMBRO;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private OngMembroStatus status = OngMembroStatus.PENDENTE;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime joinedAt;
 
-    public enum OngMembroRole { ONG_ADMIN, ONG_MEMBRO }
+    public enum OngMembroRole   { ONG_ADMIN, ONG_MEMBRO }
+    public enum OngMembroStatus { PENDENTE, ATIVO, REJEITADO }
 }

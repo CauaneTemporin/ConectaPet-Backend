@@ -1,5 +1,6 @@
 package br.com.conectapet.model;
 
+import br.com.conectapet.model.Ong;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -30,6 +31,10 @@ public class Contact {
     @NotBlank(message = "Mensagem é obrigatória")
     @Column(nullable = false, length = 2000)
     private String message;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ong_id")
+    private Ong ong;
 
     @Builder.Default
     private Boolean read = false;

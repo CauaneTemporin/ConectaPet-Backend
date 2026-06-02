@@ -8,5 +8,7 @@ import java.util.List;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long> {
     List<Contact> findAllByOrderByCreatedAtDesc();
+    List<Contact> findByOngIdOrderByCreatedAtDesc(Long ongId);
     long countByRead(Boolean read);
+    long countByOngIdAndRead(Long ongId, Boolean read);
 }

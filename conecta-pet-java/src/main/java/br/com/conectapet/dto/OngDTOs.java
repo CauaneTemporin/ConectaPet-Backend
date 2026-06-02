@@ -23,6 +23,7 @@ public class OngDTOs {
         String email,
 
         String telefone,
+        String cep,
         String endereco,
 
         @NotBlank(message = "Cidade é obrigatória")
@@ -35,6 +36,22 @@ public class OngDTOs {
         String descricao
     ) {}
 
+    public record AtualizarPerfilOngRequest(
+        String descricao,
+        String historia,
+        String missao,
+        String logoUrl,
+        String telefone,
+        String cep,
+        String endereco,
+        String facebook,
+        String whatsapp,
+        String instagram,
+        String youtube,
+        String tiktok,
+        String telegram
+    ) {}
+
     public record AtualizarStatusOngRequest(
         @NotNull(message = "Status é obrigatório")
         Ong.OngStatus status
@@ -42,6 +59,7 @@ public class OngDTOs {
 
     public record OngResumoResponse(
         Long id,
+        String cnpj,
         String nomeFantasia,
         String razaoSocial,
         String cidade,
@@ -59,11 +77,20 @@ public class OngDTOs {
         String nomeFantasia,
         String email,
         String telefone,
+        String cep,
         String endereco,
         String cidade,
         String estado,
         String descricao,
+        String historia,
+        String missao,
         String logoUrl,
+        String facebook,
+        String whatsapp,
+        String instagram,
+        String youtube,
+        String tiktok,
+        String telegram,
         Ong.OngStatus status,
         Long solicitadoPorId,
         String solicitadoPorNome,
@@ -77,6 +104,7 @@ public class OngDTOs {
         String userName,
         String userEmail,
         OngMembro.OngMembroRole role,
+        OngMembro.OngMembroStatus status,
         LocalDateTime joinedAt
     ) {}
 

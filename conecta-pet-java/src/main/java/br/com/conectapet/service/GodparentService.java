@@ -14,10 +14,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GodparentService {
 
-    private final GodparentRepository godparentRepository;
-    private final AnimalRepository    animalRepository;
-    private final UserRepository      userRepository;
-    private final DonationRepository  donationRepository;
+    private final GodparentRepository  godparentRepository;
+    private final AnimalRepository     animalRepository;
+    private final UserRepository       userRepository;
+    private final DonationRepository   donationRepository;
+    private final OngMembroRepository  membroRepository;
 
     @Transactional
     public GodparentDTOs.GodparentResponse register(GodparentDTOs.GodparentRequest req, String userEmail) {
@@ -29,12 +30,25 @@ public class GodparentService {
         if (godparentRepository.existsByUserAndAnimalAndStatus(user, animal, Godparent.GodparentStatus.APROVADO))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Você já apadrinhou este animal.");
         var g = Godparent.builder().user(user).animal(animal).amount(req.amount()).build();
-        return GodparentDTOs.GodparentResponse.from(godparentRepository.save(g));
+        GodparentDTOs.GodparentResponse response = GodparentDTOs.GodparentResponse.from(godparentRepository.save(g));
+        if (animal.getOng() != null) {
+            solicitarMembresia(animal.getOng(), user);
+        }
+        return response;
     }
 
     public List<GodparentDTOs.GodparentResponse> myGodparents(String userEmail) {
         return godparentRepository.findByUserOrderByStartedAtDesc(findUser(userEmail))
             .stream().map(GodparentDTOs.GodparentResponse::from).toList();
+    }
+
+    private void solicitarMembresia(Ong ong, User user) {
+        if (membroRepository.existsByOngAndUser(ong, user)) return;
+        membroRepository.save(OngMembro.builder()
+            .ong(ong).user(user)
+            .role(OngMembro.OngMembroRole.ONG_MEMBRO)
+            .status(OngMembro.OngMembroStatus.PENDENTE)
+            .build());
     }
 
     private User findUser(String email) {

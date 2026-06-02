@@ -10,6 +10,10 @@ public class DenunciaDTOs {
     public record CriarDenunciaRequest(
         @NotBlank(message = "Título é obrigatório") String titulo,
         @NotBlank(message = "Descrição é obrigatória") String descricao,
+        String estado,
+        String cidade,
+        String cep,
+        String complemento,
         String endereco,
         @NotNull(message = "Categoria é obrigatória") Denuncia.Categoria categoria
     ) {}
@@ -25,6 +29,10 @@ public class DenunciaDTOs {
         String userName,
         String titulo,
         String descricao,
+        String estado,
+        String cidade,
+        String cep,
+        String complemento,
         String endereco,
         Denuncia.Categoria categoria,
         Denuncia.StatusDenuncia status,
