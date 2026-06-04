@@ -1,5 +1,6 @@
 package br.com.conectapet.security;
 
+import br.com.conectapet.repository.UserRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -32,12 +34,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token) && jwtUtil.isValid(token)) {
             String email = jwtUtil.getEmail(token);
-            var userDetails = userDetailsService.loadUserByUsername(email);
-            var auth = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities()
-            );
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            long tokenVersion = jwtUtil.getTokenVersion(token);
+
+            boolean versionValid = userRepository.findByEmail(email)
+                .map(u -> {
+                    long dbVersion = u.getTokenVersion() != null ? u.getTokenVersion() : 1L;
+                    return dbVersion == tokenVersion;
+                })
+                .orElse(false);
+
+            if (versionValid) {
+                var userDetails = userDetailsService.loadUserByUsername(email);
+                var auth = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+                );
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } else {
+                log.debug("Token rejeitado: versão inválida para {}", email);
+            }
         }
 
         chain.doFilter(req, res);

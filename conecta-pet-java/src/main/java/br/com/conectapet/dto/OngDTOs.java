@@ -2,6 +2,7 @@ package br.com.conectapet.dto;
 
 import br.com.conectapet.model.Ong;
 import br.com.conectapet.model.OngMembro;
+import br.com.conectapet.model.User;
 import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
@@ -107,7 +108,8 @@ public class OngDTOs {
         String userEmail,
         OngMembro.OngMembroRole role,
         OngMembro.OngMembroStatus status,
-        LocalDateTime joinedAt
+        LocalDateTime joinedAt,
+        User.Role userGlobalRole
     ) {}
 
     public record AlterarMembroRoleRequest(

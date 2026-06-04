@@ -41,7 +41,7 @@ public class AuthService {
         userRepository.save(user);
         log.info("Novo usuário registrado: {}", user.getEmail());
 
-        String token = jwtUtil.generate(user.getEmail());
+        String token = jwtUtil.generate(user.getEmail(), user.getTokenVersion() != null ? user.getTokenVersion() : 1L);
         return new AuthDTOs.AuthResponse(token, UserDTOs.UserResponse.from(user));
     }
 
@@ -57,7 +57,7 @@ public class AuthService {
         }
 
         log.info("Login: {}", user.getEmail());
-        String token = jwtUtil.generate(user.getEmail());
+        String token = jwtUtil.generate(user.getEmail(), user.getTokenVersion() != null ? user.getTokenVersion() : 1L);
         return new AuthDTOs.AuthResponse(token, UserDTOs.UserResponse.from(user));
     }
 

@@ -83,6 +83,7 @@ public class AdminService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Não é permitido promover usuários para ADMIN por esta rota");
         }
         user.setRole(request.role());
+        user.setTokenVersion((user.getTokenVersion() != null ? user.getTokenVersion() : 1L) + 1);
         return toUserResponse(userRepository.save(user));
     }
 

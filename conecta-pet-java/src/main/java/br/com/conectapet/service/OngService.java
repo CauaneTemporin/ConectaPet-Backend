@@ -131,6 +131,8 @@ public class OngService {
         OngMembro membro = membroRepository.findByOngAndUser(ong, alvo)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não é membro desta ONG"));
         membro.setRole(request.role());
+        alvo.setTokenVersion((alvo.getTokenVersion() != null ? alvo.getTokenVersion() : 1L) + 1);
+        userRepository.save(alvo);
         return toMembroResponse(membroRepository.save(membro));
     }
 
@@ -283,7 +285,8 @@ public class OngService {
     private OngDTOs.OngMembroResponse toMembroResponse(OngMembro m) {
         return new OngDTOs.OngMembroResponse(
             m.getId(), m.getUser().getId(), m.getUser().getName(),
-            m.getUser().getEmail(), m.getRole(), m.getStatus(), m.getJoinedAt()
+            m.getUser().getEmail(), m.getRole(), m.getStatus(), m.getJoinedAt(),
+            m.getUser().getRole()
         );
     }
 }

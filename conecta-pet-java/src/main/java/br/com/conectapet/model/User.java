@@ -44,6 +44,10 @@ public class User {
     @Column(length = 500)
     private String bio;
 
+    @Column(columnDefinition = "bigint default 1")
+    @Builder.Default
+    private Long tokenVersion = 1L;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

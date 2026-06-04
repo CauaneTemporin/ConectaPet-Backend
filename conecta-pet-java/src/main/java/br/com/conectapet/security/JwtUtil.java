@@ -25,10 +25,11 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
-    /** Gera token JWT com o e-mail como subject */
-    public String generate(String email) {
+    /** Gera token JWT com o e-mail como subject e a versão do token */
+    public String generate(String email, long tokenVersion) {
         return Jwts.builder()
             .subject(email)
+            .claim("tv", tokenVersion)
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + expirationMs))
             .signWith(key)
@@ -38,6 +39,13 @@ public class JwtUtil {
     /** Extrai o e-mail (subject) do token */
     public String getEmail(String token) {
         return claims(token).getSubject();
+    }
+
+    /** Extrai a versão do token (claim "tv") */
+    public long getTokenVersion(String token) {
+        Object tv = claims(token).get("tv");
+        if (tv instanceof Number n) return n.longValue();
+        return 1L;
     }
 
     /** Valida o token — retorna true se válido */
