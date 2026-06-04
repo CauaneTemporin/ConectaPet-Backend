@@ -11,14 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
 public class AdoptionService {
 
-    private final AdoptionRepository adoptionRepository;
-    private final AnimalRepository   animalRepository;
-    private final UserRepository     userRepository;
+    private final AdoptionRepository  adoptionRepository;
+    private final AnimalRepository    animalRepository;
+    private final UserRepository      userRepository;
+    private final GodparentRepository godparentRepository;
 
     /** Solicita adoção de um animal */
     @Transactional
@@ -89,11 +91,16 @@ public class AdoptionService {
         adoption.setReviewedBy(admin);
         adoption.setReviewedAt(LocalDateTime.now());
 
-        // Ao concluir adoção, marca o animal como adotado
+        // Ao concluir adoção, marca o animal como adotado e desativa apadrinhamentos ativos
         if (req.status() == Adoption.AdoptionStatus.CONCLUIDO) {
             var animal = adoption.getAnimal();
             animal.setStatus(Animal.AnimalStatus.ADOTADO);
             animalRepository.save(animal);
+
+            var activeGodparents = godparentRepository.findByAnimalAndStatusIn(animal,
+                Arrays.asList(Godparent.GodparentStatus.APROVADO, Godparent.GodparentStatus.PENDENTE));
+            activeGodparents.forEach(gp -> gp.setStatus(Godparent.GodparentStatus.INATIVO));
+            godparentRepository.saveAll(activeGodparents);
         }
 
         return AdoptionDTOs.AdoptionResponse.from(adoptionRepository.save(adoption));

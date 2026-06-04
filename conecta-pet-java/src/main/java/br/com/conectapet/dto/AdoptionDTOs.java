@@ -17,7 +17,7 @@ public class AdoptionDTOs {
 
     public record AdoptionResponse(
         Long id, Long animalId, String animalName, String animalSpecies, String animalPhoto,
-        Long userId, String userName, String userEmail,
+        Long userId, String userName, String userEmail, String userPhone,
         String status, String message, LocalDateTime createdAt, LocalDateTime reviewedAt
     ) {
         public static AdoptionResponse from(Adoption a) {
@@ -27,6 +27,7 @@ public class AdoptionDTOs {
                 a.getAnimal().getSpecies() != null ? a.getAnimal().getSpecies().name().toLowerCase() : null,
                 a.getAnimal().getPhotoUrl(),
                 a.getUser().getId(), a.getUser().getName(), a.getUser().getEmail(),
+                a.getUser().getPhone(),
                 a.getStatus().name().toLowerCase(), a.getMessage(),
                 a.getCreatedAt(), a.getReviewedAt()
             );

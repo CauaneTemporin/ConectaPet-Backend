@@ -34,6 +34,7 @@ public class AuthService {
             .email(req.email().toLowerCase().trim())
             .password(passwordEncoder.encode(req.password()))
             .city(req.city() != null ? req.city().trim() : "")
+            .phone(req.phone() != null && !req.phone().isBlank() ? req.phone().trim() : null)
             .role(User.Role.USER)
             .build();
 
@@ -75,9 +76,10 @@ public class AuthService {
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND, "Usuário não encontrado."));
 
-        if (req.name() != null && !req.name().isBlank()) user.setName(req.name().trim());
-        if (req.city() != null)                           user.setCity(req.city().trim());
-        if (req.bio()  != null)                           user.setBio(req.bio().trim());
+        if (req.name()  != null && !req.name().isBlank()) user.setName(req.name().trim());
+        if (req.city()  != null)                           user.setCity(req.city().trim());
+        if (req.bio()   != null)                           user.setBio(req.bio().trim());
+        if (req.phone() != null)                           user.setPhone(req.phone().isBlank() ? null : req.phone().trim());
 
         return UserDTOs.UserResponse.from(userRepository.save(user));
     }

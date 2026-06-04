@@ -8,7 +8,8 @@ public class AuthDTOs {
         @NotBlank(message = "Nome é obrigatório") String name,
         @Email(message = "E-mail inválido") @NotBlank(message = "E-mail é obrigatório") String email,
         @NotBlank(message = "Senha é obrigatória") @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres") String password,
-        String city
+        String city,
+        String phone
     ) {}
 
     public record LoginRequest(
@@ -22,5 +23,5 @@ public class AuthDTOs {
         }
     }
 
-    public record UpdateProfileRequest(String name, String city, String bio) {}
+    public record UpdateProfileRequest(String name, String city, String bio, String phone) {}
 }
