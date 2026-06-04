@@ -58,6 +58,12 @@ public class Occurrence {
     @Column(length = 1000)
     private String adminNotes;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "analisado_por_id")
+    private User analisadoPor;
+
+    private LocalDateTime analisadoEm;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

@@ -39,22 +39,21 @@ public class OccurrenceService {
             .reporterEmail(req.reporterEmail())
             .anonymous(isAnonymous);
 
-        // Vincula ao usuário autenticado se não for anônimo
-        if (!isAnonymous) {
-            var auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-                userRepository.findByEmail(auth.getName()).ifPresent(builder::user);
-            }
+        // Sempre vincula ao usuário autenticado (anônimo afeta visibilidade, não o histórico)
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            userRepository.findByEmail(auth.getName()).ifPresent(builder::user);
         }
 
         return OccurrenceDTOs.OccurrenceResponse.from(occurrenceRepository.save(builder.build()));
     }
 
     public List<OccurrenceDTOs.OccurrenceResponse> list(Occurrence.OccurrenceStatus status) {
+        boolean maskReporter = !currentUserIsAdmin();
         List<Occurrence> list = status != null
             ? occurrenceRepository.findByStatusOrderByCreatedAtDesc(status)
             : occurrenceRepository.findAllByOrderByCreatedAtDesc();
-        return list.stream().map(OccurrenceDTOs.OccurrenceResponse::from).toList();
+        return list.stream().map(o -> OccurrenceDTOs.OccurrenceResponse.from(o, maskReporter)).toList();
     }
 
     public List<OccurrenceDTOs.OccurrenceResponse> listarMinhas() {
@@ -71,6 +70,15 @@ public class OccurrenceService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ocorrência não encontrada."));
         occ.setStatus(req.status());
         if (req.adminNotes() != null) occ.setAdminNotes(req.adminNotes().isBlank() ? null : req.adminNotes().trim());
+
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            userRepository.findByEmail(auth.getName()).ifPresent(gestor -> {
+                occ.setAnalisadoPor(gestor);
+                occ.setAnalisadoEm(java.time.LocalDateTime.now());
+            });
+        }
+
         return OccurrenceDTOs.OccurrenceResponse.from(occurrenceRepository.save(occ));
     }
 
@@ -79,5 +87,12 @@ public class OccurrenceService {
         if (!occurrenceRepository.existsById(id))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ocorrência não encontrada.");
         occurrenceRepository.deleteById(id);
+    }
+
+    private boolean currentUserIsAdmin() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return false;
+        return auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 }

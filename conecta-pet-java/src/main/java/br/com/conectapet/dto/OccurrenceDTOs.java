@@ -54,16 +54,28 @@ public class OccurrenceDTOs {
         Long userId,
         Occurrence.OccurrenceStatus status,
         String adminNotes,
+        String analisadoPorNome,
+        LocalDateTime analisadoEm,
         LocalDateTime createdAt
     ) {
         public static OccurrenceResponse from(Occurrence o) {
+            return from(o, false);
+        }
+
+        public static OccurrenceResponse from(Occurrence o, boolean maskReporterInfo) {
+            boolean hide = maskReporterInfo && Boolean.TRUE.equals(o.getAnonymous());
             return new OccurrenceResponse(
                 o.getId(), o.getType(), o.getTitulo(), o.getDescription(),
                 o.getEstado(), o.getCidade(), o.getCep(), o.getComplemento(), o.getEndereco(),
                 o.getAnimalDescription(), o.getAnimalIdentification(),
-                o.getReporterName(), o.getReporterEmail(), o.getAnonymous(),
-                o.getUser() != null ? o.getUser().getId() : null,
-                o.getStatus(), o.getAdminNotes(), o.getCreatedAt()
+                hide ? null : o.getReporterName(),
+                hide ? null : o.getReporterEmail(),
+                o.getAnonymous(),
+                hide ? null : (o.getUser() != null ? o.getUser().getId() : null),
+                o.getStatus(), o.getAdminNotes(),
+                o.getAnalisadoPor() != null ? o.getAnalisadoPor().getName() : null,
+                o.getAnalisadoEm(),
+                o.getCreatedAt()
             );
         }
     }
