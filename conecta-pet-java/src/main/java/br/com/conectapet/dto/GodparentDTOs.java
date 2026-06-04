@@ -12,16 +12,22 @@ public class GodparentDTOs {
         @NotNull @DecimalMin("1.00") Double amount
     ) {}
 
+    public record AmountRequest(
+        @NotNull @DecimalMin("1.00") Double amount
+    ) {}
+
     public record GodparentResponse(
         Long id, Long animalId, String animalName, String animalSpecies,
-        String animalPhoto, Double amount, String status, LocalDateTime startedAt
+        String animalPhoto, Double amount, String status, LocalDateTime startedAt,
+        String userName, String userEmail
     ) {
         public static GodparentResponse from(Godparent g) {
             return new GodparentResponse(
                 g.getId(), g.getAnimal().getId(), g.getAnimal().getName(),
                 g.getAnimal().getSpecies() != null ? g.getAnimal().getSpecies().name().toLowerCase() : null,
                 g.getAnimal().getPhotoUrl(), g.getAmount(),
-                g.getStatus().name().toLowerCase(), g.getStartedAt()
+                g.getStatus().name().toLowerCase(), g.getStartedAt(),
+                g.getUser().getName(), g.getUser().getEmail()
             );
         }
     }

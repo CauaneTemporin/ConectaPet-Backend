@@ -42,6 +42,40 @@ public class GodparentService {
             .stream().map(GodparentDTOs.GodparentResponse::from).toList();
     }
 
+    public List<GodparentDTOs.GodparentResponse> listAll(String status) {
+        List<Godparent> list = (status != null && !status.isBlank())
+            ? godparentRepository.findByStatusOrderByStartedAtDesc(Godparent.GodparentStatus.valueOf(status.toUpperCase()))
+            : godparentRepository.findAllByOrderByStartedAtDesc();
+        return list.stream().map(GodparentDTOs.GodparentResponse::from).toList();
+    }
+
+    @Transactional
+    public GodparentDTOs.GodparentResponse updateAmount(Long id, GodparentDTOs.AmountRequest req, String email) {
+        Godparent godparent = godparentRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Apadrinhamento não encontrado"));
+        User user = findUser(email);
+        if (!godparent.getUser().getId().equals(user.getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para alterar este apadrinhamento");
+        godparent.setAmount(req.amount());
+        godparent.setStatus(Godparent.GodparentStatus.PENDENTE);
+        return GodparentDTOs.GodparentResponse.from(godparentRepository.save(godparent));
+    }
+
+    @Transactional
+    public GodparentDTOs.GodparentResponse approveGodparent(Long id) {
+        Godparent godparent = godparentRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Apadrinhamento não encontrado"));
+        godparent.setStatus(Godparent.GodparentStatus.APROVADO);
+        return GodparentDTOs.GodparentResponse.from(godparentRepository.save(godparent));
+    }
+
+    @Transactional
+    public void adminDeleteGodparent(Long id) {
+        if (!godparentRepository.existsById(id))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Apadrinhamento não encontrado");
+        godparentRepository.deleteById(id);
+    }
+
     private void solicitarMembresia(Ong ong, User user) {
         if (membroRepository.existsByOngAndUser(ong, user)) return;
         membroRepository.save(OngMembro.builder()

@@ -81,8 +81,12 @@ public class SecurityConfig {
                 // ── Gestor Público ────────────────────────────────────
                 .requestMatchers(HttpMethod.GET,   "/api/denuncias").hasAnyRole("ADMIN", "GESTOR_PUBLICO")
                 .requestMatchers(HttpMethod.PATCH, "/api/denuncias/*/status").hasAnyRole("ADMIN", "GESTOR_PUBLICO")
+                // ── Godparents ────────────────────────────────────────
+                .requestMatchers(HttpMethod.GET,    "/api/godparents").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.PATCH,  "/api/godparents/*/approve").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/godparents/*/admin").hasAnyRole("ADMIN", "ONG_ADMIN")
+                .requestMatchers(HttpMethod.POST,   "/api/godparents").authenticated()
                 // ── Autenticadas ──────────────────────────────────────
-                .requestMatchers(HttpMethod.POST,  "/api/godparents").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

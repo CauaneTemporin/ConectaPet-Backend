@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface GodparentRepository extends JpaRepository<Godparent, Long> {
     List<Godparent> findByUserOrderByStartedAtDesc(User user);
+    List<Godparent> findAllByOrderByStartedAtDesc();
+    List<Godparent> findByStatusOrderByStartedAtDesc(Godparent.GodparentStatus status);
     boolean existsByUserAndAnimalAndStatus(User user, Animal animal, Godparent.GodparentStatus status);
     long countByStatus(Godparent.GodparentStatus status);
 
