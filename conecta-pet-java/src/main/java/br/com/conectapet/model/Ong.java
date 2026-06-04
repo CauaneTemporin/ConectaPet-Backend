@@ -60,6 +60,9 @@ public class Ong {
 
     private String logoUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String pixQrCodeUrl;
+
     private String facebook;
     private String whatsapp;
     private String instagram;
