@@ -255,7 +255,8 @@ public class OngService {
         if (req.historia()   != null) ong.setHistoria(req.historia().isBlank()   ? null : req.historia().trim());
         if (req.missao()     != null) ong.setMissao(req.missao().isBlank()       ? null : req.missao().trim());
         if (req.logoUrl()       != null) ong.setLogoUrl(req.logoUrl().isBlank()           ? null : req.logoUrl().trim());
-        if (req.pixQrCodeUrl()  != null) ong.setPixQrCodeUrl(req.pixQrCodeUrl().isBlank() ? null : req.pixQrCodeUrl().trim());
+        if (req.pixQrCodeUrl()   != null) ong.setPixQrCodeUrl(req.pixQrCodeUrl().isBlank()   ? null : req.pixQrCodeUrl().trim());
+        if (req.pixCopiaCola()   != null) ong.setPixCopiaCola(req.pixCopiaCola().isBlank()   ? null : req.pixCopiaCola().trim());
         if (req.telefone()      != null) ong.setTelefone(req.telefone().isBlank()         ? null : req.telefone().trim());
         if (req.cep()        != null) ong.setCep(req.cep().isBlank()             ? null : req.cep().trim());
         if (req.endereco()   != null) ong.setEndereco(req.endereco().isBlank()   ? null : req.endereco().trim());
@@ -273,7 +274,7 @@ public class OngService {
         return new OngDTOs.OngResponse(
             o.getId(), o.getCnpj(), o.getRazaoSocial(), o.getNomeFantasia(),
             o.getEmail(), o.getTelefone(), o.getCep(), o.getEndereco(), o.getCidade(), o.getEstado(),
-            o.getDescricao(), o.getHistoria(), o.getMissao(), o.getLogoUrl(), o.getPixQrCodeUrl(),
+            o.getDescricao(), o.getHistoria(), o.getMissao(), o.getLogoUrl(), o.getPixQrCodeUrl(), o.getPixCopiaCola(),
             o.getFacebook(), o.getWhatsapp(), o.getInstagram(), o.getYoutube(), o.getTiktok(), o.getTelegram(),
             o.getStatus(),
             o.getSolicitadoPor() != null ? o.getSolicitadoPor().getId() : null,

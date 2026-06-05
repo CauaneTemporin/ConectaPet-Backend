@@ -63,6 +63,9 @@ public class Ong {
     @Column(columnDefinition = "TEXT")
     private String pixQrCodeUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String pixCopiaCola;
+
     private String facebook;
     private String whatsapp;
     private String instagram;
